@@ -208,8 +208,7 @@ int Min(morpion grille, int i, int j)
             if (grille[i][j] == -1){
                 grille[i][j] = 1;
                 valeur = Max(grille, i, j);
-                if (score > valeur)
-                    score = valeur;
+                if (score > valeur) score = valeur;
                 grille[i][j] = -1;
             }
         }
@@ -228,10 +227,11 @@ void MinMax (morpion grille , int *ti , int* tj){
                 grille[i][j] = 1;
                 valeur = Max(grille , i ,j);
                 if (score > valeur){
-                    score == valeur;
+                    score = valeur;
                     *ti = i;
                     *tj = j;
                 }
+                printf("i=%d , j=%d , valeur= %d\n", i,j,valeur);
                 grille[i][j] = -1;
             }
         }

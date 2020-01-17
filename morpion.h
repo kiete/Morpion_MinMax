@@ -20,8 +20,8 @@ int gagnant (morpion grille, int it, int jt);
 
 void MinMax (morpion grille , int *ti , int* tj);
 
-int Min(morpion grille, int i, int j);
+int Min(morpion grille, int i, int j , int alpha , int beta);
 
-int Max(morpion grille , int i , int j);
+int Max(morpion grille , int i , int j , int alpha , int beta);
 
 int jeuFini(morpion grille);

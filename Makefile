@@ -1,7 +1,7 @@
-all: morpion
+all: morpion.exe
 
-morpion: morpion.c
-	gcc -o morpion morpion.c morpion.h
+morpion.exe: morpion.c
+	gcc -o morpion.exe morpion.c morpion.h
 
 clean:
 	rm morpion

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "morpion.h"
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
@@ -174,179 +175,122 @@ int jeuFini (morpion grille){
     return 1 ;
 }
 
-int alphaBeta(morpion grille , int a , int b , int i , int j , int profondeur){
+
+
+
+void alphabeta(morpion grille, int *i , int* j)
+{
+    int score, coordonnee, valeur;
+
+    score = INT_MAX;
+    coordonnee = 0;
+    int i_p , j_p;
+    for (i_p = 0; i_p < SIZE; i_p++)
+    {
+        for (j_p = 0; j_p < SIZE; j_p++)
+        {
+            if (grille[i_p][j_p] == VIDE) // si case vide
+            {
+                grille[i_p][j_p] = J2;
+
+
+                valeur = max_AB(grille, i_p , j_p , INT_MIN, INT_MAX);
+
+                printf("i=%d , j=%d , score=%d\n", i_p, j_p, valeur);
+
+                if (score > valeur)
+                {
+                    score = valeur;
+                    *i = i_p ;
+                    *j = j_p ;
+                }
+                grille[i_p][j_p] = VIDE;
+            }
+        }
+    }
+
+    return ;
+}
+
+
+int max_AB(morpion grille, int i , int j, int alpha, int beta)
+{
+    int score, ij, valeur;
+
     if (gagnant(grille, i, j) == 0)
         return 10;
     if (gagnant(grille, i, j) == 1)
         return -10;
     if (jeuFini(grille))
         return 0;
-    
-    int alpha = -10;
-    int beta = 10;
-
-    //printf("ab profondeur = %d\n", profondeur);
-    //affichage_grille(grille);
-    //exit(1);
-
-    int i_p,j_p;
-    int v;
-    if (profondeur%2 == 1){ // Noeud MIN
-        v = 11;
-        for (i_p = 0 ; i_p < SIZE ; i_p++){
-            for (j_p = 0 ; j_p < SIZE ; j_p++){
-                if (grille[i_p][j_p] == -1){
-                    grille[i_p][j_p] = 1;
-                    v = MIN(beta , alphaBeta(grille , alpha , beta , i_p , j_p , profondeur + 1));
-                    grille[i_p][j_p] = -1;
-                    if (alpha >= v)
-                        return v ;
-                    beta = MIN(beta , v);
-                }
-            }
-        }
-    }else{ // Noeud MAX
-        v = -11;
-        for (i_p = 0 ; i_p < SIZE ; i_p++){
-            for (j_p = 0 ; j_p < SIZE ; j_p++){
-                if (grille[i_p][j_p] == -1){
-                    grille[i_p][j_p] = 0;
-                    v = MAX(v, alphaBeta(grille, alpha, beta, i_p, j_p, profondeur + 1));
-                    grille[i_p][j_p] = -1;
-                    if (v >= beta)
-                        return v;
-                    alpha = MAX(alpha , v);
-                }
-            }
-        }
-    }
-    return v ;
-}
-
-int abPlus(morpion grille , int profondeur , int* i , int* j ){
-    int value = 10;
-    int var = 0;
     int i_p, j_p;
-    //printf("abPlus profondeur = %d\n" , profondeur);
-    for (i_p = 0; i_p < SIZE; i_p++){
-        for (j_p = 0; j_p < SIZE; j_p++){
-            if (grille[i_p][j_p] == -1){
-                grille[i_p][j_p] = profondeur % 2;
-                var = alphaBeta(grille, -11, 11, i_p, j_p, profondeur + 1);
-                grille[i_p][j_p] = -1;
-                if (value > var)
+    score = INT_MIN;
+    for (i_p = 0; i_p < SIZE; i_p++)
+    {
+        for (j_p = 0; j_p < SIZE; j_p++)
+        {
+            if (grille[i_p][j_p] == VIDE) // si case vide
+            {
+                grille[i_p][j_p] = J1 ;
+                valeur = min_AB(grille, i_p, j_p, alpha, beta);
+                grille[i_p][j_p] = VIDE;
+                if (score < valeur)
+                    score = valeur;
+                if (score >= beta)
                 {
-                    value = var;
-                    *i = i_p;
-                    *j = j_p;
+                    //				printf( "coupure \n" ) ;
+                    return score;
                 }
-                if (value==-10){
-                    return 0 ;
-                }
-                printf("i=%d , j=%d , score=%d\n", i_p, j_p, var);
+                if (score > alpha)
+                    alpha = score;
+                if (alpha >= beta)
+                    return alpha;
             }
         }
     }
+        return score;
 }
 
-/*
-int Max(morpion grille, int i, int j, int alpha, int beta)
+
+int min_AB(morpion grille, int i , int j, int alpha, int beta)
 {
-    int score = -10;
+    int score, ij, valeur;
+
     if (gagnant(grille, i, j) == 0)
         return 10;
     if (gagnant(grille, i, j) == 1)
         return -10;
     if (jeuFini(grille))
         return 0;
-    int valeur;
-    valeur = 11;
 
-    int alpha_p = -11;
-    int beta_p = 11;
-
-    for (i = 0; i < SIZE; i++)
+    score = INT_MAX;
+    int i_p , j_p;
+    for (i_p = 0; i_p < SIZE; i_p++)
     {
-        for (j = 0; j < SIZE; j++)
+        for (j_p = 0; j_p < SIZE; j_p++)
         {
-            if (grille[i][j] == -1)
+            if (grille[i_p][j_p] == VIDE) // si case vide
             {
-                grille[i][j] = 0;
-                int val = Min(grille, i, j, MAX(alpha_p, alpha), beta);
-                alpha_p = MAX(alpha_p, val);
-                grille[i][j] = -1;
-                if (beta <= alpha_p)
-                    return alpha_p;
-            }
-        }
-    }
-    return alpha_p;
-}
-
-int Min(morpion grille, int i, int j, int alpha, int beta)
-{
-    int score = 10;
-    if (gagnant(grille, i, j) == 0)
-        return 10;
-    if (gagnant(grille, i, j) == 1)
-        return -10;
-    if (jeuFini(grille) == 1)
-        return 0;
-    int valeur;
-    valeur = 11;
-
-    int alpha_p = -11;
-    int beta_p = 11;
-
-    for (i = 0; i < SIZE; i++)
-    {
-        for (j = 0; j < SIZE; j++)
-        {
-            if (grille[i][j] == -1)
-            {
-                grille[i][j] = 1;
-                int val = Max(grille, i, j, alpha, MIN(beta, beta_p));
-                beta_p = MIN(beta_p, val);
-                grille[i][j] = -1;
-                if (beta_p <= alpha)
-                    return beta_p;
-            }
-        }
-    }
-    return beta;
-}
-
-void MinMax(morpion grille, int *ti, int *tj)
-{
-    int alpha = -11;
-    int beta = 11;
-    int valeur;
-
-    int i, j;
-    for (i = 0; i < SIZE; i++)
-    {
-        for (j = 0; j < SIZE; j++)
-        {
-            if (grille[i][j] == -1)
-            {
-                grille[i][j] = 1;
-                valeur = Max(grille, i, j, alpha, beta);
-                if (alpha < valeur)
+                grille[i_p][j_p] = J2;
+                valeur = max_AB(grille, i_p , j_p, alpha, beta);
+                grille[i_p][j_p] = VIDE;
+                if (score > valeur)
+                    score = valeur;
+                if (score <= alpha)
                 {
-                    alpha = valeur;
-                    *ti = i;
-                    *tj = j;
+                    //				printf( "coupure \n" ) ;
+                    return score;
                 }
-                printf("i=%d , j=%d , valeur= %d\n", i, j, valeur);
-                grille[i][j] = -1;
+                if (score < beta)
+                    beta = score;
+                if (alpha >= beta)
+                    return alpha;
             }
-        }
     }
-    printf("score = %d\n", alpha);
-    printf("i=%d , j=%d\n", *ti, *tj);
-    return;
+    }
+
+    return score;
 }
-*/
 
 int main()
 {
@@ -370,13 +314,10 @@ int main()
     {
         joueur = nb_tour % 2;
         dois_jouer = 1;
-        printf("C'est au tour de J%d !\n", joueur);
+        printf("C'est au tour de J%d !\n", joueur+1);
         if (joueur == 1)
         {
-            //MinMax(grille, &i, &j);
-            i = -11;
-            j = 11;
-            abPlus(grille , nb_tour , &i , &j);
+            alphabeta(grille, &i , &j);
             jouer(i, j, grille, nb_tour % 2);
             nb_tour++;
         }
@@ -400,7 +341,7 @@ int main()
 
     if (gagnant(grille, i, j) != -1)
     {
-        printf("\tLe joueur %d a gagné, BRAVO !\n\n", joueur);
+        printf("\tLe joueur %d a gagné, BRAVO !\n\n", joueur+1);
     }
     else
     {
